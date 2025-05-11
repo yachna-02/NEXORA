@@ -1,1 +1,70 @@
+Objective
+To develop a system that can automatically identify and predict potential or ongoing adverse medical events from transcribed conversations between patients and healthcare providers.
+Target Users
+1. Healthcare Providers (nurses, doctors, pharmacists)
+2. Hospital Admins / Safety Officers
+3. Healthcare AI Tool Integrators / Developers
+4. Patients (indirectly) via automated monitoring
+
+Target Users
+1. Healthcare Providers (nurses, doctors, pharmacists)
+2. Hospital Admins / Safety Officers
+3. Healthcare AI Tool Integrators / Developers
+4. Patients (indirectly) via automated monitoring
+
+✅ Information Architecture (Nexora System)
+1. Input Layer:
+Input Source: User uploads an audio file via the web UI.
+
+Processing Tool: OpenAI Whisper (ASR model) transcribes the audio to text.
+
+2. NLP Layer:
+Entity Extraction: AWS Comprehend Medical detects MEDICATION, MEDICAL_CONDITION, and other relevant medical entities.
+
+3. Adverse Event Repository:
+API Integration: OpenFDA FAERS API is queried using detected medications to fetch known adverse reactions.
+
+4. Risk Scoring & Insights Layer:
+Logic: Severity-based scoring system based on keywords like “death”, “shock”, etc.
+
+Output: Summary with transcript, detected medications, symptoms, predicted adverse reactions, risk scores, and clinical insights.
+
+5. Output Layer:
+User Output: Structured plain-text summary shown in UI.
+
+Test Scenarios (Sample)
+- A conversation contains a patient complaining about chest pain after a medication: System flags it as a likely adverse event.
+- A conversation with minor complaints and no serious symptoms: System does not flag an AE.
+- Conversation mentions a missed dose and dizziness: System predicts a potential AE risk.
+
+🧪 Test Cases
+Test Case ID	Description	Input	Expected Output	Actual Result	Status
+TC01	Whisper transcription accuracy	Clear audio of patient saying "I take Metformin and feel nauseous"	Transcript includes “metformin” and “nauseous”	Matches expected	✅
+TC02	Empty audio input	Silent/empty file	"Transcript is empty or missing."	Correct message	✅
+TC03	Medication extraction	Transcript with “atorvastatin”	Medication list includes “atorvastatin”	Detected correctly	✅
+TC04	Symptom extraction	Transcript with “dizzy and nauseous”	Symptoms list includes “dizzy”, “nauseous”	Detected correctly	✅
+TC05	FAERS API failure	Use non-existent medication	“No known reactions found.”	Gracefully handled	✅
+TC06	High-risk medication	Mention “warfarin” with “bleeding” symptoms	Risk score >= 7, High Risk	Correctly labeled	✅
+
+✅
+
+🧪 Testing Methodology
+1. Unit Testing
+Scripts: Each function (extract_medical_entities, fetch_adverse_events, compute_risk_score) tested with various controlled inputs.
+
+Tool: Python unittest or pytest.
+
+Mocking: FAERS API calls mocked using unittest.mock to avoid dependency during offline tests.
+
+2. Integration Testing
+Goal: Ensure Whisper, Comprehend Medical, and FAERS API work in sequence.
+
+Steps:
+
+Upload real audio samples.
+
+Verify flow from audio to final output.
+
+Confirm end-to-end success or errors are caught.
+
 
